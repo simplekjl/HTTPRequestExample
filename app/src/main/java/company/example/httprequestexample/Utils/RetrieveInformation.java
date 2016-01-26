@@ -5,9 +5,11 @@ import android.os.AsyncTask;
 import org.xml.sax.InputSource;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -20,6 +22,7 @@ public class RetrieveInformation extends AsyncTask<String, Void, String> {
     private Exception exception;
     public Reference mref;
 
+
     protected String doInBackground(String... urls) {
 
         //http://stackoverflow.com/questions/15719942/get-json-in-asynctask-android
@@ -27,8 +30,9 @@ public class RetrieveInformation extends AsyncTask<String, Void, String> {
         try {
             URL url = new URL(urls[0]);
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-            InputStream in = new BufferedInputStream(urlConnection.getInputStream());
-            msg = readStream(in);
+            msg = readStream(urlConnection.getInputStream());
+            //InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+            //msg = readStream(in);
             urlConnection.disconnect();
 
 
@@ -47,16 +51,16 @@ public class RetrieveInformation extends AsyncTask<String, Void, String> {
     }
 
     private String readStream(InputStream is) {
-        try {
-            ByteArrayOutputStream bo = new ByteArrayOutputStream();
-            int i = is.read();
-            while(i != -1) {
-                bo.write(i);
-                i = is.read();
+        StringBuilder sb = new StringBuilder();
+        try{
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+            String nextLine= "";
+            while((nextLine = reader.readLine() ) != null){
+                sb.append(nextLine);
             }
-            return bo.toString();
-        } catch (IOException e) {
-            return "there is an error";
+        }catch(IOException ex){
+
         }
+        return sb.toString();
     }
 }
